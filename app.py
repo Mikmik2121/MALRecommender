@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import zipfile
+import os
 
 # ============================
 # Load dataset + similarity matrix
@@ -9,10 +11,23 @@ import numpy as np
 @st.cache_data
 def load_data():
     dataset = pd.read_csv("anime-transformed-dataset-2023.csv")   # your preprocessed dataset with all_titles
-    cosine_sim = np.load("anime_cosine_similarity_synopsis_full.npy")  # your cosine similarity array
-    return dataset, cosine_sim
+    return dataset
 
-dataset, cosine_similarity = load_data()
+def load_similarity_matrix(zip_path="anime_cosine_similarity_synopsis_full.zip"):
+    # Extract the npy file from zip
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(".")
+
+    # The extracted file will have the same name as original
+    npy_filename = "anime_cosine_similarity_synopsis_full.npy"
+
+    # Load into numpy
+    return np.load(npy_filename)
+
+# Usage
+cosine_similarity = load_similarity_matrix()
+
+dataset = load_data()
 
 # ============================
 # Build title lookup index
