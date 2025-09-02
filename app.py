@@ -15,7 +15,7 @@ def load_data():
 def load_cosine_similarity():
     # Load all chunk files
     parts = []
-    for file in sorted(glob.glob("cosine_part_*.npz")):
+    for file in sorted(glob.glob("cosine_part_12.npz")):
         arr = np.load(file)["data"]
         parts.append(arr)
 
