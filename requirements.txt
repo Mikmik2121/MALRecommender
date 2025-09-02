@@ -2,3 +2,4 @@ streamlit
 gdown
 pandas
 numpy
+sklearn
