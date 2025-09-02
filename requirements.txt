@@ -1,0 +1,4 @@
+streamlit
+gdown
+pandas
+numpy
