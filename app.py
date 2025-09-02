@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer 
 from sklearn.metrics.pairwise import linear_kernel   
-import string                
+import string                                              
 
 # ============================
 # Load dataset
@@ -54,34 +54,19 @@ animes_indices = build_title_index(dataset)
 # ============================
 # Recommendation function
 # ============================
-def get_recommendations(dataset, title, *, animes_indices, cosine_similarity, number_recommendations=10):
+def get_recommendations(dataset, title, *, animes_indices, tfidf_matrix, number_recommendations=10):
     title = title.strip().lower()
     if title not in animes_indices:
         raise KeyError(f"Title '{title}' not found in dataset (check all_titles)")
+
     idx = animes_indices[title]
+    cosine_similarities = linear_kernel(tfidf_matrix[idx], tfidf_matrix).flatten()
+    related_docs_indices = cosine_similarities.argsort()[:-number_recommendations-2:-1]
+    related_docs_indices = [i for i in related_docs_indices if i != idx]
 
-    similarity_scores = list(enumerate(cosine_similarity[idx]))
-    similarity_scores = sorted(
-        similarity_scores,
-        key=lambda x: (x[1], dataset.iloc[int(x[0])].get("score", -1)),
-        reverse=True
-    )
-    similarity_scores = similarity_scores[1:]  # skip itself
-    similarity_scores = [
-        (int(i), sim) for i, sim in similarity_scores
-        if dataset.iloc[int(i)].get("score", -1) != -1
-    ]
-    similarity_scores = similarity_scores[:number_recommendations]
-
-    recommended_indices = [i for i, _ in similarity_scores]
-    recommended_scores  = [sim for _, sim in similarity_scores]
-
-    cols = ['title', 'all_titles', 'synopsis_full', 'score', 'genres', 'themes', 'main_picture']
-    cols = [c for c in cols if c in dataset.columns]
-
-    recommendations_df = dataset.iloc[recommended_indices][cols].copy()
-    recommendations_df['cosine_similarity'] = recommended_scores
+    recommendations_df = dataset.iloc[related_docs_indices][["title","score","genres","themes","synopsis_full","main_picture"]].copy()
     recommendations_df.insert(0, "rank", range(1, len(recommendations_df)+1))
+    recommendations_df["cosine_similarity"] = cosine_similarities[related_docs_indices]
     return recommendations_df
 
 # ============================
