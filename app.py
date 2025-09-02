@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import zipfile
-import os
+import gdown
 
 # ============================
 # Load dataset + similarity matrix
@@ -13,19 +12,10 @@ def load_data():
     dataset = pd.read_csv("anime-transformed-dataset-2023.csv")   # your preprocessed dataset with all_titles
     return dataset
 
-def load_similarity_matrix(zip_path="anime_cosine_similarity_synopsis_full.zip"):
-    # Extract the npy file from zip
-    with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        zip_ref.extractall(".")
-
-    # The extracted file will have the same name as original
-    npy_filename = "anime_cosine_similarity_synopsis_full.npy"
-
-    # Load into numpy
-    return np.load(npy_filename)
-
-# Usage
-cosine_similarity = load_similarity_matrix()
+url = "https://drive.google.com/uc?id=1tCBnsoDFZMlE4jFcV-MFa1TKNeW1P66H"
+output = "anime_cosine_similarity_synopsis_full.npy"
+gdown.download(url, output, quiet=False)
+cosine_similarity = np.load(output)
 
 dataset = load_data()
 
