@@ -13,24 +13,25 @@ def load_data():
 # ============================
 # Load cosine similarity matrix
 # ============================
-@st.cache_resource
-def load_cosine_similarity():
-    parts = []
-    # Load ALL chunk files, e.g. cosine_part_0.npz, cosine_part_1.npz, ...
-    chunk_files = sorted(glob.glob("cosine_part_*.npz"))
-    if not chunk_files:
-        raise FileNotFoundError("❌ No cosine_part_*.npz files found in working directory")
-
-    for file in chunk_files:
-        arr = np.load(file)["data"]
-        parts.append(arr)
-
-    # Stack them vertically to rebuild the full matrix
-    cosine_similarity = np.vstack(parts)
-    return cosine_similarity
-
 dataset = load_data()
-cosine_similarity = load_cosine_similarity()
+
+
+dataset = dataset[dataset["transformed_synopsis_full"].notna()]
+dataset["transformed_synopsis_full"] = dataset["transformed_synopsis_full"].astype(str)
+
+tfidf_vectorizer = TfidfVectorizer(analyzer='word', norm='l2', stop_words='english')
+dataset_tfidf_synopsis_full = tfidf_vectorizer.fit_transform(dataset.transformed_synopsis_full)
+
+batch_size = 1000
+n = dataset_tfidf_synopsis_full.shape[0]
+cosine_similarity = np.zeros((n, n), dtype=np.float32)
+
+for start in range(0, n, batch_size):
+    end = min(start + batch_size, n)
+    cosine_similarity[start:end] = linear_kernel(
+        dataset_tfidf_synopsis_full[start:end],
+        dataset_tfidf_synopsis_full
+    )
 
 # ============================
 # Build title lookup index
@@ -117,4 +118,3 @@ if search_title:
             st.markdown("---")
     except KeyError as e:
         st.error(str(e))
-
