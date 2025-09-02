@@ -12,7 +12,8 @@ def load_data():
     dataset = pd.read_csv("anime-transformed-dataset-2023.csv")   # your preprocessed dataset with all_titles
     return dataset
 
-url = "https://drive.google.com/uc?id=1tCBnsoDFZMlE4jFcV-MFa1TKNeW1P66H"
+file_id = "1tCBnsoDFZMlE4jFcV-MFa1TKNeW1P66H"
+url = f"https://drive.google.com/uc?id={file_id}"
 output = "anime_cosine_similarity_synopsis_full.npy"
 gdown.download(url, output, quiet=False)
 cosine_similarity = np.load(output)
