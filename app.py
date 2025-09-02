@@ -1,7 +1,7 @@
-pip install gdown
-pip install streamlit
-pip install pandas
-pip install numpy
+!pip install gdown
+!pip install streamlit
+!pip install pandas
+!pip install numpy
 
 import streamlit as st
 import pandas as pd
