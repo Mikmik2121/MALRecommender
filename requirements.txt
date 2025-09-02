@@ -3,3 +3,5 @@ gdown
 pandas
 numpy
 sklearn
+TfidfVectorizer
+linear_kernel
