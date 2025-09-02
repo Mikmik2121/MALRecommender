@@ -2,7 +2,4 @@ streamlit
 gdown
 pandas
 numpy
-sklearn.feature_extraction.text
-sklearn.metrics.pairwise
-TfidfVectorizer
-linear_kernel
+scikit-learn
