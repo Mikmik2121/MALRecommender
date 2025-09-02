@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import gdown
+import glob
 
 # ============================
 # Load dataset + similarity matrix
@@ -12,13 +12,19 @@ def load_data():
     dataset = pd.read_csv("anime-transformed-dataset-2023.csv")   # your preprocessed dataset with all_titles
     return dataset
 
-file_id = "1tCBnsoDFZMlE4jFcV-MFa1TKNeW1P66H"
-url = f"https://drive.google.com/uc?id={file_id}"
-output = "anime_cosine_similarity_synopsis_full.npy"
-gdown.download(url, output, quiet=False)
-cosine_similarity = np.load(output)
+def load_cosine_similarity():
+    # Load all chunk files
+    parts = []
+    for file in sorted(glob.glob("cosine_part_*.npz")):
+        arr = np.load(file)["data"]
+        parts.append(arr)
+
+    # Stitch back into full matrix
+    cosine_similarity = np.vstack(parts)
+    return cosine_similarity
 
 dataset = load_data()
+cosine_similarity = load_cosine_similarity()
 
 # ============================
 # Build title lookup index
